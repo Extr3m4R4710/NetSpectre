@@ -6,7 +6,7 @@ installation method is common with tor-router.
 
 **Note: need bash. no sh**
 ```
-git clone https://github.com/Extr3m4R4710/NetSpectre.git && cd ./net-spectre && sudo bash install.sh
+git clone https://github.com/Extr3m4R4710/NetSpectre.git && cd ./NetSpectre && sudo bash install.sh
 ```
 # Stoping
 The fundamental operation of NetSpectre adheres to Edu4rdSHL/tor-router. To halt NS, disable the service unit using systemctl disable net-spectre (if installed via install.sh). Subsequently, reboot your computer.
