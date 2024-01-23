@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="1.1.3#stable"
+VERSION="1.1.4#dev"
 RULES="/var/tmp/net-spectre.save"
 
 # Tor's TransPort
@@ -8,34 +8,34 @@ DNS_PORT="5353"
 
 function startSpectre()
 {
-	if test -f "$RULES"; then
-		echo -e "\e[1;33m [\\] $RULES exists. Either delete it, or stop NetSpectre first. \e[0m "
-	else
+    if test -f "$RULES"; then
+        echo -e "\e[1;33m [\\] $RULES exists. Either delete it, or stop NetSpectre first. \e[0m "
+    else
 		iptables-save >$RULES
     # Executable file to create rules for transparent proxy
     # Destinations you do not want routed through Tor
 		EXCLUDE_TOR="192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
     # the UID Tor runs as, actually only support for Debian, ArchLinux and Fedora as been added.
 		if command -v pacman >/dev/null; then
-			TOR_UID=$(id -u tor)
-		elif command -v apt >/dev/null; then
-			TOR_UID=$(id -u debian-tor)
-		elif command -v dnf >/dev/null; then
-			TOR_UID=$(id -u toranon)
-		else
-			echo -e "\e[1;31m [-] Unknown distro, please create report the issue to https://github.com/Extr3m4R4710/NetSpectre/issue \e[0m "
-			exit 1
+	        TOR_UID=$(id -u tor)
+	    elif command -v apt >/dev/null; then
+	        TOR_UID=$(id -u debian-tor)
+	    elif command -v dnf >/dev/null; then
+	        TOR_UID=$(id -u toranon)
+	      else
+	        echo -e "\e[1;31m [-] Unknown distro, please create report the issue to https://github.com/Extr3m4R4710/NetSpectre/issue \e[0m "
+	        exit 1
 		fi
 
 		if ! command -v tor >/dev/null; then
-			echo -e "\e[1;31m You need to install the tor package. \e[0m"
-			exit 1
+	        echo -e "\e[1;31m You need to install the tor package. \e[0m"
+	        exit 1
 		elif ! systemctl is-active tor.service >/dev/null; then
-			echo -e "\e[1;31 [-] The tor service is not active, please start the tor service before running the script. \e[0m"
-			exit 1
+	        echo -e "\e[1;31 [-] The tor service is not active, please start the tor service before running the script. \e[0m"
+	        exit 1
 		elif ! command -v iptables >/dev/null; then
-			echo -e "\e[1;31 You need to install the iptables package. \e[0m"
-			exit 1
+            echo -e "\e[1;31 You need to install the iptables package. \e[0m"
+            exit 1
 		else
 
       # disable ipv6
