@@ -39,36 +39,36 @@ function startSpectre()
 		else
 
       # disable ipv6
-	    echo -e "\e[1;32m [+]  Disabling IPv6 for security reasons \e[0m]"
-	    sysctl -w net.ipv6.conf.all.disable_ipv6=1
-	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
+	        echo -e "\e[1;32m [+]  Disabling IPv6 for security reasons \e[0m]"
+	        sysctl -w net.ipv6.conf.all.disable_ipv6=1
+	        sysctl -w net.ipv6.conf.default.disable_ipv6=1
 
 
       # init IPTables roules
-			iptables -F
-			iptables -t nat -F
+	        iptables -F
+	        iptables -t nat -F
 
       # set IPTables nat
 			echo -e "\e[1;32m [+] onfiguring iptables rules to route all traffic through tor \e[0m"
-			iptables -t nat -A OUTPUT -m owner --uid-owner "$TOR_UID" -j RETURN
+	        iptables -t nat -A OUTPUT -m owner --uid-owner "$TOR_UID" -j RETURN
 
       # set dns redirect
 			echo -e "\e[1;32m [+] Redirectiing DNS traffic through tor \e[0m"
-			iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $DNS_PORT
+	        iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports $DNS_PORT
 
       #Executable local addresses
 			for NET in $EXCLUDE_TOR 127.0.0.0/9 127.128.0.0/10; do
-				iptables -t nat -A OUTPUT -d "$NET" -j RETURN
-        iptables -A OUTPUT -d "$NET" -j ACCEPT
+                iptables -t nat -A OUTPUT -d "$NET" -j RETURN
+                iptables -A OUTPUT -d "$NET" -j ACCEPT
 			done
 
       #redirect all other output through TOR
-			iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $TRANS_PORT
-      iptables -t nat -A OUTPUT -p udp -j REDIRECT --to-ports "$TRANS_PORT"
-	    iptables -t nat -A OUTPUT -p icmp -j REDIRECT --to-ports "$TRANS_PORT"
+            iptables -t nat -A OUTPUT -p tcp --syn -j REDIRECT --to-ports $TRANS_PORT
+            iptables -t nat -A OUTPUT -p udp -j REDIRECT --to-ports "$TRANS_PORT"
+	        iptables -t nat -A OUTPUT -p icmp -j REDIRECT --to-ports "$TRANS_PORT"
 
       #accept already established connections
-      iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+            iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 
       #allow only tor output
@@ -78,28 +78,26 @@ function startSpectre()
 
       # "ParrotSecのアイディアを緊急コピペ"
       ## TESTING block all incoming traffics
-      iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
-      iptables -A INPUT -i lo -j ACCEPT
-		  iptables -A INPUT -j DROP
+            iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
+            iptables -A INPUT -i lo -j ACCEPT
+		    iptables -A INPUT -j DROP
 
       ### *filter FORWARD
-		  iptables -A FORWARD -j DROP
+		    iptables -A FORWARD -j DROP
 
       ### *filter OUTPUT
-		  iptables -A OUTPUT -m state --state INVALID -j DROP
-		  iptables -A OUTPUT -m state --state ESTABLISHED -j ACCEPT
+		    iptables -A OUTPUT -m state --state INVALID -j DROP
+		    iptables -A OUTPUT -m state --state ESTABLISHED -j ACCEPT
 
      # Allow Tor process output
-    iptables -A OUTPUT -m owner --uid-owner $TOR_UID -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m state --state NEW -j ACCEPT
+            iptables -A OUTPUT -m owner --uid-owner $TOR_UID -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m state --state NEW -j ACCEPT
 
     # Allow loopback output
-    iptables -A OUTPUT -d 127.0.0.1/32 -o lo -j ACCEPT
+            iptables -A OUTPUT -d 127.0.0.1/32 -o lo -j ACCEPT
     # iptables 1.8.5 can't use -o with input
     #  /usr/sbin/iptables -A INPUT -d 127.0.0.1/32 -o lo -j ACCEPT
     # Tor transproxy magic
-		iptables -A OUTPUT -d 127.0.0.1/32 -p tcp -m tcp --dport "$TRANS_PORT" --tcp-flags FIN,SYN,RST,ACK SYN -j ACCEPT
-
-
+		    iptables -A OUTPUT -d 127.0.0.1/32 -p tcp -m tcp --dport "$TRANS_PORT" --tcp-flags FIN,SYN,RST,ACK SYN -j ACCEPT
 		fi
 	fi
 }
@@ -108,38 +106,38 @@ function stopSpectre()
 {
     # re-enable ipv6
 	  sysctl -w net.ipv6.conf.all.disable_ipv6=0
-    sysctl -w net.ipv6.conf.default.disable_ipv6=0
+      sysctl -w net.ipv6.conf.default.disable_ipv6=0
 
     if test -f "$RULES"; then
-		echo -e "\e[1;32m [+] Restoring previous rules from $RULES \e[0m"
-		iptables -t nat -F
-		iptables-restore <"$RULES"
-		rm "$RULES"
+        echo -e "\e[1;32m [+] Restoring previous rules from $RULES \e[0m"
+        iptables -t nat -F
+        iptables-restore <"$RULES"
+	    rm "$RULES"
 	else
-		echo -e "\e[1;31m [X] $RULES does not exist. Not doing anything. \e[0m"
-		exit
+        echo -e "\e[1;31m [X] $RULES does not exist. Not doing anything. \e[0m"
+        exit
 	fi
 }
 
 function restartSpectre()
 {
 	echo -e "\e[1;32m [+] reboot tor network \e[0m"
-	stopSpectre
-	startSpectre
+    stopSpectre
+    startSpectre
 }
 
 case "$1" in
 start)
-	startSpectre
+    startSpectre
 	;;
 stop)
-	stopSpectre
+    stopSpectre
 	;;
 restart)
-	restartSpectre
+      restartSpectre
 	;;
 myip)
-	 curl -sL ip-api.com/json | python -m json.tool
+      curl -sL ip-api.com/json | python -m json.tool
   ;;
 *)
 
