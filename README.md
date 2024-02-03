@@ -1,5 +1,5 @@
 # NetSpectre
-Net-spectre is an anonymization tool that enforces communication via Tor SOCKS across the entire network. It is composed of a shell script and operates instantly on almost all Linux systems. It does not require any additional code or new packages, and there is no need to modify or rewrite system files. However, Tor must be installed. If Python is not present on the system, please install it. Alternatively, you can replace the 'myip' section in the case statement of net-spectre with Perl or another command (i.e. jq).
+Net-spectre is an anonymization tool that enforces network-connection via Tor SOCKS across the entire network. It is composed of a shell script and operates instantly on almost all Linux systems. It does not require any additional code or new packages, and there is no need to modify or rewrite system files. However, Tor must be installed. If Python is not present on the system, please install it. Alternatively, you can replace the 'myip' section in the case statement of net-spectre with Perl or another command (i.e. jq).
 
 # install
 installation method is common with tor-router.
