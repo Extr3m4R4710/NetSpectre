@@ -1,9 +1,5 @@
 #!/bin/bash
-<<<<<<< HEAD
 VERSION="1.1.4dev"
-=======
-VERSION="1.1.3stable"
->>>>>>> refs/remotes/origin/main
 RULES="/var/tmp/net-spectre.save"
 
 # Tor's TransPort
