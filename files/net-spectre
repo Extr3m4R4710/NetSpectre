@@ -1,18 +1,25 @@
 #!/bin/bash
-VERSION="1.1.3stable"
+VERSION="1.1.7stable"
 RULES="/var/tmp/net-spectre.save"
 
 # Tor's TransPort
 TRANS_PORT="9040"
 DNS_PORT="5353"
 
+# init iptables function
+function init_iptables()
+{
+    iptables -t nat -F
+    iptables -F
+}
+
 function startSpectre()
 {
     if test -f "$RULES"; then
-        echo -e "\e[1;33m [\\] $RULES exists. Either delete it, or stop NetSpectre first. \e[0m "
+        echo -e "\e[1;33m [\\] "$RULES" exists. Either delete it, or restart NetSpectre first. \e[0m "
+        exit 1
     else
-		iptables-save >$RULES
-    # Executable file to create rules for transparent proxy
+	# Executable file to create rules for transparent proxy
     # Destinations you do not want routed through Tor
 		EXCLUDE_TOR="192.168.0.0/16 172.16.0.0/12 10.0.0.0/8"
     # the UID Tor runs as, actually only support for Debian, ArchLinux and Fedora as been added.
@@ -21,15 +28,15 @@ function startSpectre()
 	    elif command -v apt >/dev/null; then
 	        TOR_UID=$(id -u debian-tor)
 	    elif command -v dnf >/dev/null; then
-	    	TOR_UID=$(id -u toranon)
+            TOR_UID=$(id -u toranon)
 
-	    	else
-	     		echo -e "\e[1;31m [-] Unknown distro, please create report the issue to https://github.com/Extr3m4R4710/NetSpectre/issue \e[0m "
-				exit 1
+        else
+            echo -e "\e[1;31m [-] Unknown distro, please create report the issue to https://github.com/Extr3m4R4710/NetSpectre/issue \e[0m "
+			exit 1
 		fi
 
 		if ! command -v tor >/dev/null; then
-	    	echo -e "\e[1;31m You need to install the tor package. \e[0m"
+            echo -e "\e[1;31m You need to install the tor package. \e[0m"
 	        exit 1
 		elif ! systemctl is-active tor.service >/dev/null; then
 	        echo -e "\e[1;31 [-] The tor service is not active, please start the tor service before running the script. \e[0m"
@@ -37,20 +44,21 @@ function startSpectre()
 		elif ! command -v iptables >/dev/null; then
             echo -e "\e[1;31 You need to install the iptables package. \e[0m"
             exit 1
-		else
+
+        else
 
       # disable ipv6
-	    echo -e "\e[1;32m [+]  Disabling IPv6 for security reasons \e[0m]"
+	    echo -e "\e[1;32m [+] Disabling IPv6 for security reasons \e[0m]"
 	    sysctl -w net.ipv6.conf.all.disable_ipv6=1
 	    sysctl -w net.ipv6.conf.default.disable_ipv6=1
 
+        iptables-save >$RULES
 
       # init IPTables roules
-	    iptables -F
-	    iptables -t nat -F
+        init_iptables
 
       # set IPTables nat
-		echo -e "\e[1;32m [+] onfiguring iptables rules to route all traffic through tor \e[0m"
+		echo -e "\e[1;32m [+] Configuring iptables rules to route all traffic through tor \e[0m"
 	    iptables -t nat -A OUTPUT -m owner --uid-owner "$TOR_UID" -j RETURN
 
       # set dns redirect
@@ -75,9 +83,8 @@ function startSpectre()
       #allow only tor output
 		echo -e "\e[1;32m [+] Allowing only tor to browse in clearnet \e[0m"
 		iptables -A OUTPUT -m owner --uid-owner "$TOR_UID" -j ACCEPT
-		iptables -A OUTPUT -j REJECT
+        iptables -A OUTPUT -j DROP
 
-      # "ParrotSecのアイディアを緊急コピペ"
       ## TESTING block all incoming traffics
         iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT
         iptables -A INPUT -i lo -j ACCEPT
@@ -91,7 +98,7 @@ function startSpectre()
 		iptables -A OUTPUT -m state --state ESTABLISHED -j ACCEPT
 
      # Allow Tor process output
-        iptables -A OUTPUT -m owner --uid-owner $TOR_UID -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m state --state NEW -j ACCEPT
+        iptables -A OUTPUT -m owner --uid-owner "$TOR_UID" -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m state --state NEW -j ACCEPT
 
      # Allow loopback output
         iptables -A OUTPUT -d 127.0.0.1/32 -o lo -j ACCEPT
@@ -110,13 +117,13 @@ function stopSpectre()
     sysctl -w net.ipv6.conf.default.disable_ipv6=0
 
     if test -f "$RULES"; then
-    	echo -e "\e[1;32m [+] Restoring previous rules from $RULES \e[0m"
-        iptables -t nat -F
-        iptables-restore <"$RULES"
+        init_iptables
+        echo -e "\e[1;32m [+] Restoring previous rules from "$RULES" \e[0m"
+        iptables-restore <$RULES
 	    rm "$RULES"
 	else
-        echo -e "\e[1;31m [X] $RULES does not exist. Not doing anything. \e[0m"
-        exit
+        echo -e "\e[1;31m [X] "$RULES" does not exist. Not doing anything. \e[0m"
+        exit 0
 	fi
 }
 
@@ -124,6 +131,7 @@ function restartSpectre()
 {
 	echo -e "\e[1;32m [+] reboot tor network \e[0m"
     stopSpectre
+    sleep 2
     startSpectre
 }
 
