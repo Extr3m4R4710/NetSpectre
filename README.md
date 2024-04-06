@@ -41,6 +41,3 @@ There is an additional option not present in the official tor-router, which allo
 [ root@N2x3ec ~ ]:#
 
 ```
-
-###  note: About main branch and dev branch
-There are two versions of net-spectre. One is stable (main branch) and the next is dev (lab branch). The dev version allows you to use the latest features, but may cause unintended behavior. Therefore, only clone the lab branch if you need experimental release functionality (i.e. if the stable version has a defect). We are always accepting issues.
