@@ -41,3 +41,16 @@ There is an additional option not present in the official tor-router, which allo
 [ root@N2x3ec ~ ]:#
 
 ```
+NetSpectre also blocks IPv6 leaks by default, allowing for more secure communications than tor-router.
+
+```
+[ root@N2x3ec ~ ]:# net-spectre start
+ [+] Disabling IPv6 for security reasons ]
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+ [+] Configuring iptables rules to route all traffic through tor 
+ [+] Redirectiing DNS traffic through tor 
+ [+] Allowing only tor to browse in clearnet
+[ root@N2x3ec ~ ]:#
+```
+
