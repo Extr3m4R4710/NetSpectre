@@ -11,7 +11,7 @@ git clone https://github.com/Extr3m4R4710/NetSpectre.git && cd ./NetSpectre && s
 # Stoping
 The basic operation of NetSpectre adheres to Edu4rdSHL/tor-router. To stop NS, disable the service unit using `systemctl disable net-spectre` (if installed via install.sh). Subsequently, reboot your computer.
 
-In simpler terms, as long as the service unit is active, NS consistently connects to Tor as a systemctl service, compelling all internet connection across via Tor when after reboot computer
+In simpler terms, as long as the service unit is active, NS consistently connects to Tor as a systemctl service, compelling all internet connection across via Tor when after reboot computer.
 NS receives three command line options, `start`, `stop`, and `restart`, it's crucial to recognize that this only permits non-Tor connections temporarily and partially. If systemctl is enabled, be sure to deactivate it. This scenario is specific to installations initiated from install.sh, and it does not apply when using the NS (net-spectre) script independently.
 
 # options
